@@ -3,7 +3,6 @@
   var cards = [].slice.call(strip.querySelectorAll('.card'));
   var bgs = [].slice.call(document.querySelectorAll('.bg-img'));
   var name = document.getElementById('bigName');
-  var mRol = document.getElementById('mRol'), mAnio = document.getElementById('mAnio'), mLugar = document.getElementById('mLugar');
   var cNow = document.getElementById('cNow'), cBar = document.getElementById('cBar');
   var mobile = window.matchMedia('(max-width:760px)');
   var reduce = window.matchMedia('(prefers-reduced-motion:reduce)').matches;
@@ -11,6 +10,7 @@
 
   // Precarga de fondos para que el cambio sea instantáneo
   window.addEventListener('load', function () {
+    if (!mobile.matches) return;
     A.forEach(function (a) { var i = new Image(); i.src = '/assets/img/' + a.slug + '.webp'; });
   });
 
@@ -19,14 +19,20 @@
     cur = i;
     var a = A[i];
     cards.forEach(function (c, k) { c.classList.toggle('is-active', k === i); });
+    if (!mobile.matches) return finish(a, i);
     var next = bgs[1 - front];
     next.style.objectPosition = a.pos;
+    next.style.setProperty('--mz', a.mz || 1);
+    next.style.setProperty('--mo', a.mo || '50% 100%');
     next.src = '/assets/img/' + a.slug + '.webp';
     var show = function () { next.classList.add('is-on'); bgs[front].classList.remove('is-on'); front = 1 - front; };
     if (next.complete && next.naturalWidth) show(); else next.onload = show;
+    finish(a, i);
+  }
+
+  function finish(a, i) {
     name.textContent = a.nombre;
     name.classList.remove('swap'); void name.offsetWidth; name.classList.add('swap');
-    mRol.textContent = a.rol; mAnio.textContent = a.anio; mLugar.textContent = a.lugar;
     cNow.textContent = String(i + 1).padStart(2, '0');
     cBar.style.transform = 'translateX(' + (i * 100) + '%)';
   }
